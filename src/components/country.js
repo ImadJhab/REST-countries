@@ -1,58 +1,73 @@
-import { useState, useEffect } from "react"
-import { Link, useParams } from "react-router-dom"
+import React, {useState, useEffect} from 'react'
+import { Link, useParams } from 'react-router-dom'
 
-export default function Country() {
+function Country() {
   const [country, setCountry] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const { capital } = useParams()
+  const { name } = useParams()
 
   useEffect(() => {
     const fetchCountryData = async () => {
-      const res = await fetch(
-        `http://api.countrylayer.com/v2/capital/${capital}?access_key=${process.env.REACT_APP_ACCESS_KEY}`
-      )
-      const data = await res.json()
-      setCountry(data)
-      setIsLoading(false)
+        const response = await fetch(`https://restcountries.com/v2/name/${name}`)
+        const country = await response.json()
+        setCountry(country)
+        console.log(country)
     }
-
     fetchCountryData()
-  }, [capital])
+  }, [name])
 
   return (
-    <>
-      {isLoading ? (
-        <h1 className="flex items-center justify-center h-screen text-4xl uppercase tracking-widest text-gray-900 dark:text-white lg:text-7xl font-bold">
-          Loading...
-        </h1>
-      ) : (
-        <section className="pt-32 xl:max-w-7xl xl:mx-auto px-5 xl:px-0 h-screen">
-          <Link
-            to="/"
-            className="bg-blue-500 pt-2 pb-3 pl-4 pr-6 rounded shadow text-white fobt-bold tracking-wide animate-pulse"
-          >
-            &larr; Back
-          </Link>
-          {country.map(({ name, capital, region, topLevelDomain }) => (
-            <article key={name}>
-              <h2 className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white mt-10 mb-5">
-                {name},{" "}
-                <span className="font-light text-2xl lg:text-4xl">
-                  {capital}
-                </span>
-              </h2>
-              <ul>
-                <li className="text-gray-900 dark:text-white lg:text-lg">
-                  Region: {region}
-                </li>
-                <li className="text-gray-900 dark:text-white lg:text-lg">
-                  Top Level Domain: {topLevelDomain}
-                </li>
-              </ul>
-            </article>
-          ))}
-        </section>
-      )}
-    </>
+
+    <div className='py-16 px-8 md:px-16' sx={{color: "color"}}>
+      <Link to="/" className='btn'>
+        <i className='fas fa-arrow-left'></i>       Back Home
+      </Link>
+
+      <section>
+        {country.map((c) =>  {
+
+            return <article className='mt-12 grid grid-cols-1 gap-2 md:grid-cols-3 
+            md:place-items-center' key={c.numericCode}>
+                        <div className=''>
+                         <img className="md:h-60 md:w-80" src={c.flag} alt={name}/>
+                        </div>
+                        <div className="">
+                          <div>
+                            <h1 className='font-extrabold mt-8 mb-6'>{name}</h1>
+                            <section>
+                              <h5 className='mt-2 font-semibold'>Native Name: <span className='font-light'>{c.nativeName}</span></h5>
+                              <h5 className='mt-2 font-semibold'>Population: <span className='font-light'>{c.population}</span></h5>
+                              <h5 className='mt-2 font-semibold'>Region: <span className='font-light'>{c.region}</span></h5>
+                              <h5 className='mt-2 font-semibold'>Sub Region: <span className='font-light'>{c.subregion}</span></h5>
+                              <h5 className='mt-2 font-semibold'>Capital: <span className='font-light'>{c.capital}</span></h5>
+                            </section>
+                          </div>
+                            <div>
+                              <h5 className='mt-2 font-semibold'>Top Level Domain: <span className='font-light'>{c.topLevelDomain}</span></h5>
+                              <h5 className='mt-2 font-semibold'>Currencies: <span className='font-light'>{c.currencies[0].name}</span></h5>
+                              <h5 className='mt-2 font-semibold'>Languages: <span className='font-light'>{c.languages[0].name}</span></h5>
+                            </div>
+                        </div>
+                            <div>
+                              <h5 className='' >
+                               Border Countries: 
+                               </h5>
+                              <div className='flex flex-wrap'>
+                                {c.borders.map((border) => (
+                                  <ul key={border} >
+                                    <li className="flex p-2 mr-2 rounded text-xs tracking-wide shadow dark list-none"
+                                     sx={{backgroundColor: "headerBackground"}}>
+                                        {border} 
+                                     </li>   
+                                  </ul>
+                                ))} 
+                              </div>
+                            </div>
+                    </article>
+                    
+        })}
+      </section>
+    </div>
   )
 }
+
+export default Country

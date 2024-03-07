@@ -1,103 +1,66 @@
-import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import Filter from "./filter"
+import React, {useEffect, useState} from 'react'
+import {Link} from 'react-router-dom'
 
-export default function Countries() {
-  const [countries, setCountries] = useState([])
-  const [filtered, setFiltered] = useState([])
-  const [searchInput, setSearchInput] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
+let url = "https://restcountries.com/v2/all"
 
-  const fetchCountries = async () => {
-    const res = await fetch(
-      `http://api.countrylayer.com/v2/all?access_key=${process.env.REACT_APP_ACCESS_KEY}`
-    )
-    const data = await res.json()
-    setCountries(data)
-    console.log(data)
-    setIsLoading(false)
-  }
-
-  useEffect(() => {
-    fetchCountries()
-  }, [])
-
-  const searchCountries = (searchValue) => {
-    setSearchInput(searchValue)
-
-    if (searchInput) {
-      const filteredCountries = countries.filter((country) =>
-        Object.values(country)
-          .join("")
-          .toLowerCase()
-          .includes(searchValue.toLowerCase())
-      )
-      setFiltered(filteredCountries)
-    } else {
-      setFiltered(countries)
-    }
-  }
-
-  return (
-    <>
-      {isLoading ? (
-        <h1 className="flex items-center justify-center h-screen text-4xl uppercase tracking-widest text-gray-900 dark:text-white lg:text-7xl font-bold">
-          Loading...
-        </h1>
-      ) : (
-        <>
-          <div className="pt-32">
-            <Filter
-              searchCountries={searchCountries}
-              searchInput={searchInput}
-              setCountries={setCountries}
-            />
-          </div>
-          {searchInput.length > 0 ? (
-            <section className="grid grid-cols-1 gap-5 p-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 2xl:container 2xl:mx-auto">
-              {filtered.map(({ name, capital, region }) => (
-                <Link to={`/${capital}`} key={name}>
-                  <article className="bg-white rounded shadow p-5 dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 transition-all duration-300">
-                    <h2 className="font-bold text-gray-900 text-2xl mb-3 dark:text-white">
-                      {name}
-                    </h2>
-                    <ul>
-                      <li className="dark:text-white text-gray-900">
-                        Capital: {capital}
-                      </li>
-                      <li className="dark:text-white text-gray-900">
-                        Region: {region}
-                      </li>
-                    </ul>
-                  </article>
-                </Link>
-              ))}
-            </section>
-          ) : (
-            <>
-              <section className="grid grid-cols-1 gap-5 p-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 2xl:container 2xl:mx-auto">
-                {countries.map(({ name, capital, region }) => (
-                  <Link to={`/${capital}`} key={name}>
-                    <article className="bg-white rounded shadow p-5 dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 transition-all duration-300">
-                      <h2 className="font-bold text-gray-900 text-2xl mb-3 dark:text-white">
-                        {name}
-                      </h2>
-                      <ul>
-                        <li className="dark:text-white text-gray-900">
-                          Capital: {capital}
-                        </li>
-                        <li className="dark:text-white text-gray-900">
-                          Region: {region}
-                        </li>
-                      </ul>
-                    </article>
-                  </Link>
-                ))}
-              </section>
-            </>
-          )}
-        </>
-      )}
-    </>
-  )
+const queryParams = new URLSearchParams(window.location.search)
+const term = queryParams.get("region")
+if (term) {
+    url = `https://restcountries.com/v2/region/${term}`
 }
+
+const fetchData = async (url) => {
+    const response = await fetch(url)
+    return await response.json()
+}
+
+const Countries = (props) => {
+    const [countries, setCountries] = useState([])
+
+    const initial = () => {
+        fetchData(url).then((countries) => {
+            setCountries(countries)
+        })
+    }
+
+    useEffect(() => {
+        props.search === '' && initial()
+        props.search && fetchData(`https://restcountries.com/v2/name/${props.search}`).then((countries) => {
+            setCountries(countries)
+        })
+    }, [props.search])
+
+    useEffect(() => {
+        props.region === '' && initial()
+        props.region && fetchData(`https://restcountries.com/v2/region/${props.region}`).then((countries) => {
+            setCountries(countries)
+        })
+    }, [props.region])
+
+    return (
+        <>
+            <section className='gridblock' sx={{color: "color"}}>
+                {countries.map((country) => {
+                    const {name, population, region, capital, flag, numericCode} = country
+
+                    return <article key={numericCode}>
+                        <Link to={`/countries/${name}`} className="btn">
+                            <div className='sec'>
+                                <img src={flag} alt={name}/>
+                                <div className='details'
+                                     sx={{color: "color", backgroundColor: "headerBackground"}}>
+                                    <h3>{name}</h3>
+                                    <h4>Population: <span>{population}</span></h4>
+                                    <h4>Region: <span>{region}</span></h4>
+                                    <h4>Capital: <span>{capital}</span></h4>
+                                </div>
+                            </div>
+                        </Link>
+                    </article>
+                })}
+            </section>
+        </>
+    )
+}
+
+export default Countries
