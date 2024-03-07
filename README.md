@@ -3,12 +3,12 @@ REST countries is a project that returns informations about any country, using R
 # How to run
 clone the repository:
 ```bash
-    git clone https://github.com/ImadJhab/REST-countries.git
-	cd REST-countries
+git clone https://github.com/ImadJhab/REST-countries.git
+cd REST-countries
 
 ```
 then run the following commands:
 ```bash
-	npm install
-	npm start
+npm install
+npm start
 ```
