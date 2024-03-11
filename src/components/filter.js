@@ -1,3 +1,4 @@
+/** @jsxImportSource theme-ui */
 import React, {useState} from 'react'
 
 import Countries from "./countries";

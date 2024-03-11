@@ -1,3 +1,4 @@
+/** @jsxImportSource theme-ui */
 import { useColorMode } from 'theme-ui'
 
 import React from 'react'
